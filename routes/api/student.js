@@ -1,5 +1,7 @@
 const route = require('express').Router();
 const Student = require('../../models/student');
+const Company = require('../../models/company');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 //Get all Students
 route.get('/all', (req, res) => {
@@ -19,34 +21,46 @@ route.get('/all', (req, res) => {
 //Sends Json object of matched record incase found
 route.get('/:rollno', (req, res) => {
 
-   Student.findOne({rollno:req.params.rollno}, function (err, record)
-   {
-       if (err) {
-           throw err;
-       }
-       res.json(record);
-   } );/*.populate('companies').exec(function (err, story) {
-
-       if (err) return handleError(err);
-
-       console.log('Companies Registered : %s', story.companies.name);
-
-   });*/
-
+    Student.findOne({ rollno:req.params.rollno }).
+    populate('companies').
+    exec(function (err, record) {
+        if (err) return handleError(err);
+        res.json(record);
+    });
 });
 
 
-//Add New Student
+//Add New Student with/without companies
 route.post('/add',(req,res)=>{
 
     let student = req.body;
-    Student.create(student,function (err, record)
+    let st1;
+
+    let array = student.companies;
+
+    let query = {'c_id': {$in:array}};
+
+    Company.find(query, function (err, r)
     {
         if (err) {
             throw err;
         }
-        res.json(record);
-    });
+        st1 = new Student({name : student.name,rollno: student.rollno, cgpa :student.cgpa, department:student.department },function (err, record)
+        {
+            if (err) {
+                throw err;
+            }
+
+        });
+        for ( i in r)
+        {
+            st1.companiesRegistered.push(r[i]._id);
+        }
+        st1.save();
+        res.json(r);
+
+    } );
+
 });
 
 

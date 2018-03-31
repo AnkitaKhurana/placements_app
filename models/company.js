@@ -14,11 +14,11 @@ const companySchema = mongoose.Schema({
     },
     studentsRequired: {
         type: Number,
-        required: true
+        // required: true
     },
     package: {
         type: Number,
-        required: true
+        // required: true
     },
     role: {
         type: String,
