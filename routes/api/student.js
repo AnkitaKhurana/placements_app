@@ -82,10 +82,7 @@ route.put('/edit/:rollno',(req,res)=>{
         var update = {
             name : req.body.name,
             department : req.body.department,
-            cgpa: req.body.cgpa,
-            //companiesRegistered: {'_id': r}
-            //$pull: { companiesRegistered : {} },
-           // $addToSet: { companiesRegistered: { $each: r } }
+            cgpa: req.body.cgpa
         };
 
         Student.findOneAndUpdate(query,update,{},function (err, record)
@@ -105,22 +102,6 @@ route.put('/edit/:rollno',(req,res)=>{
         });
 
     } );
-
-    // var query = {rollno:req.params.rollno};
-    // var update = {
-    //     name : req.body.name,
-    //     department : req.body.department,
-    //     cgpa: req.body.cgpa,
-    // };
-    //
-    // Student.findOneAndUpdate(query,update,{},function (err, record)
-    // {
-    //     if (err) {
-    //         throw err;
-    //     }
-    //
-    //
-    // });
     res.sendStatus(200)
 
 });
