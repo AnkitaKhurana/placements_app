@@ -120,6 +120,22 @@ route.delete('/delete/:rollno',(req,res)=>{
 });
 
 
+
+
+//Delete All Student Record
+route.delete('/deleteAll',(req,res)=>{
+
+    Student.remove({},function (err,record) {
+        if(err)
+        {
+            throw err;
+        }
+        res.json(record);
+    });
+});
+
+
+
 //Get all Companies of particular Student
 route.get('/:rollno/companies', (req, res) => {
 
