@@ -19,7 +19,7 @@ route.get('/all', (req, res) => {
 //Sends Json object of matched record incase found
 route.get('/:c_id', (req, res) => {
 
-    Student.findOne({c_id:req.params.c_id}, function (err, record)
+   Company.findOne({c_id:req.params.c_id}, function (err, record)
     {
         if (err) {
             throw err;
@@ -72,7 +72,7 @@ route.put('/edit/:c_id',(req,res)=>{
 //Delete Company Record
 route.delete('/delete/:c_id',(req,res)=>{
 
-    Student.remove({c_id:req.params.c_id},function (err,record) {
+    Company.remove({c_id:req.params.c_id},function (err,record) {
         if(err)
         {
             throw err;
