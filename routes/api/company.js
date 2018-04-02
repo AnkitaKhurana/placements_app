@@ -61,7 +61,6 @@ route.put('/edit/:c_id',(req,res)=>{
         if (err) {
             throw err;
         }
-
     });
     res.sendStatus(200)
 

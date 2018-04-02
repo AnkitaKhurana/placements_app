@@ -6,8 +6,7 @@ const Company = require('../../models/company');
 //Get all Students
 route.get('/all', (req, res) => {
 
-    Student.find({},function(err , records)
-    {
+    Student.find({}, function (err, records) {
         if (err) {
             throw err;
         }
@@ -21,90 +20,87 @@ route.get('/all', (req, res) => {
 //Sends Json object of matched record incase found
 route.get('/:rollno', (req, res) => {
 
-    Student.findOne({ rollno:req.params.rollno }).
-    populate('companies').
-    exec(function (err, record) {
-        if (err) {throw err}
+    Student.findOne({rollno: req.params.rollno}).populate('companies').exec(function (err, record) {
+        if (err) {
+            throw err
+        }
         res.json(record);
     });
 });
 
 
 //Add New Student with/without companies
-route.post('/add',(req,res)=>{
+route.post('/add', (req, res) => {
 
     let student = req.body;
     let st1;
 
     let array = student.companies;
 
-    let query = {'c_id': {$in:array}};
+    let query = {'c_id': {$in: array}};
 
-    Company.find(query, function (err, r)
-    {
+    Company.find(query, function (err, r) {
         if (err) {
             throw err;
         }
-        st1 = new Student({name : student.name,rollno: student.rollno, cgpa :student.cgpa, department:student.department },function (err, record)
-        {
+        st1 = new Student({
+            name: student.name,
+            rollno: student.rollno,
+            cgpa: student.cgpa,
+            department: student.department
+        }, function (err, record) {
             if (err) {
                 throw err;
             }
 
         });
-        for ( i in r)
-        {
+        for (i in r) {
             st1.companiesRegistered.push(r[i]._id);
-            if( r[i].studentsRegistered.indexOf(st1._id) === -1) {
+            if (r[i].studentsRegistered.indexOf(st1._id) === -1) {
                 r[i].studentsRegistered.push(st1._id);
                 r[i].save();
             }
         }
-        console.log(r)
 
         st1.save();
-        res.json(r);
+        res.json(st1);
 
-    } );
+    });
 
 });
 
 
-
 //Edit Student Details (with/without companies)
-route.put('/edit/:rollno',(req,res)=>{
+route.put('/edit/:rollno', (req, res) => {
 
 
-    let query = {rollno:req.params.rollno};
+    let query = {rollno: req.params.rollno};
     let update = {
-        name : req.body.name,
-        department : req.body.department,
+        name: req.body.name,
+        department: req.body.department,
         cgpa: req.body.cgpa
     };
 
-    Student.findOneAndUpdate(query,update,{},function (err, stu)
-    {
+    Student.findOneAndUpdate(query, update, {}, function (err, stu) {
 
-        if (err){ throw  err;}
-        Company.find({},function (err,comp)
-        {
-            if(err){
+        if (err) {
+            throw  err;
+        }
+        Company.find({}, function (err, comp) {
+            if (err) {
                 throw err;
             }
             let array = req.body.companies;
             stu.companiesRegistered = [];
             stu.save();
-            for (i in comp)
-            {
-                let index = comp[i].studentsRegistered.indexOf(stu._id);
+            for (i in comp) {
+                let index = comp[i].studentsRegistered.indexOf(stu._id.toString());
 
-                if(array.indexOf(comp[i].c_id.toString())===-1)
-                {
+                if (array.indexOf((comp[i].c_id).toString()) === -1) {
                     if (index === -1) {
 
                     }
-                    else
-                    {
+                    else {
                         comp[i].studentsRegistered.splice(index, 1);
                         comp[i].save()
                     }
@@ -119,38 +115,72 @@ route.put('/edit/:rollno',(req,res)=>{
                     stu.save();
                 }
             }
-            console.log(stu);
 
-        })
+        });
+        res.json(stu);
+    });
+
+});
+
+
+//Delete A Student Record
+route.delete('/delete/:rollno', (req, res) => {
+
+    let studentToDelete = {};
+    Student.findOne({rollno: req.params.rollno}, function (err, records) {
+        if (err) {
+            throw err;
+        }
+
+        Company.find({}, function (err, comp) {
+            if (err) {
+                throw err;
+            }
+
+            for (i in comp) {
+                console.log(records)
+                var index = comp[i].studentsRegistered.indexOf(records._id.toString());
+                if (index === -1) {
+
+                }
+                else {
+                    comp[i].studentsRegistered.splice(index, 1);
+                    comp[i].save();
+                }
+            }
+        }).then(records => {
+            Student.remove({rollno: req.params.rollno}, function (err, record) {
+                if (err) {
+                    throw err;
+                }
+            })
+        });
+    });
+
+    res.sendStatus(200)
+});
+
+//Delete All Student Records
+route.delete('/deleteAll', (req, res) => {
+
+    Student.remove({}, function (err, record) {
+        if (err) {
+            throw err;
+        }
+
+    });
+    Company.find({}, function (err, records) {
+        if (err) {
+            throw err;
+        }
+        for (i in records) {
+            records[i].studentsRegistered = [];
+            records[i].save();
+        }
+
     });
     res.sendStatus(200);
 
-});
-
-
-//Delete Student Record
-route.delete('/delete/:rollno',(req,res)=>{
-
-    Student.remove({rollno:req.params.rollno},function (err,record) {
-        if(err)
-        {
-            throw err;
-        }
-        res.json(record);
-    });
-});
-
-
-//Delete All Student Records
-route.delete('/deleteAll',(req,res)=>{
-
-    Student.remove({},function (err,record) {
-        if(err)
-        {
-            throw err;
-        }
-        res.json(record);
-    });
 });
 
 
@@ -158,17 +188,14 @@ route.delete('/deleteAll',(req,res)=>{
 route.get('/:rollno/companies', (req, res) => {
 
 
-    Student.findOne({ rollno:req.params.rollno }).
-    populate('companies').
-    exec(function (err, record) {
+    Student.findOne({rollno: req.params.rollno}).populate('companies').exec(function (err, record) {
         if (err) return handleError(err);
 
         let array = record.companiesRegistered;
 
-        let query = {'_id': {$in:array}};
+        let query = {'_id': {$in: array}};
 
-        Company.find(query,function(err , records)
-        {
+        Company.find(query, function (err, records) {
             if (err) {
                 throw err;
             }
@@ -178,54 +205,48 @@ route.get('/:rollno/companies', (req, res) => {
 });
 
 
-
 //Register/Unregister Company
 route.put('/:rollno/edit/companies', (req, res) => {
 
-         Student.findOneAndUpdate({ rollno:req.params.rollno },{},{},function (err, stu)
-        {
+    Student.findOneAndUpdate({rollno: req.params.rollno}, {}, {}, function (err, stu) {
 
-        if (err){ throw  err;}
-        Company.find({},function (err,comp)
-        {
-            if(err){
+        if (err) {
+            throw  err;
+        }
+        Company.find({}, function (err, comp) {
+            if (err) {
                 throw err;
             }
             let array = req.body.companies;
             stu.companiesRegistered = [];
             stu.save();
-            for (i in comp)
-            {
+            for (i in comp) {
                 let index = comp[i].studentsRegistered.indexOf(stu._id);
 
-                if(array.indexOf(comp[i].c_id.toString())===-1)
-                 {
-                     if (index === -1) {
+                if (array.indexOf(comp[i].c_id.toString()) === -1) {
+                    if (index === -1) {
 
-                     }
-                     else
-                         {
-                         comp[i].studentsRegistered.splice(index, 1);
-                         comp[i].save()
-                     }
+                    }
+                    else {
+                        comp[i].studentsRegistered.splice(index, 1);
+                        comp[i].save()
+                    }
 
-                 }
-                 else {
+                }
+                else {
                     if (index === -1) {
                         comp[i].studentsRegistered.push(stu._id);
                         comp[i].save()
                     }
                     stu.companiesRegistered.push(comp[i]._id);
                     stu.save();
-                 }
+                }
             }
-            console.log(stu);
 
-        })
+        });
+        res.json(stu);
     });
-    res.sendStatus(200);
 });
-
 
 
 module.exports = route;
