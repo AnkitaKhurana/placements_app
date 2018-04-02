@@ -1,7 +1,7 @@
 const route = require('express').Router();
 const Student = require('../../models/student');
 const Company = require('../../models/company');
-var ObjectId = require('mongoose').Types.ObjectId;
+// const ObjectId = require('mongoose').Types.ObjectId;
 
 //Get all Students
 route.get('/all', (req, res) => {
@@ -75,72 +75,55 @@ route.post('/add',(req,res)=>{
 route.put('/edit/:rollno',(req,res)=>{
 
 
-    Student.findOne({ rollno:req.params.rollno }).
-    populate('companies').
-    exec(function (err, stu) {
+    let query = {rollno:req.params.rollno};
+    let update = {
+        name : req.body.name,
+        department : req.body.department,
+        cgpa: req.body.cgpa
+    };
 
+    Student.findOneAndUpdate(query,update,{},function (err, stu)
+    {
 
-        if (err){ throw  err}
+        if (err){ throw  err;}
         Company.find({},function (err,comp)
         {
             if(err){
                 throw err;
             }
-
-            for ( i in comp)
+            let array = req.body.companies;
+            stu.companiesRegistered = [];
+            stu.save();
+            for (i in comp)
             {
-                var index = comp[i].studentsRegistered.indexOf(stu._id);
-                if(index!==-1)
+                let index = comp[i].studentsRegistered.indexOf(stu._id);
+
+                if(array.indexOf(comp[i].c_id.toString())===-1)
                 {
-                    comp[i].studentsRegistered.splice(index,1);
-                    comp[i].save()
+                    if (index === -1) {
+
+                    }
+                    else
+                    {
+                        comp[i].studentsRegistered.splice(index, 1);
+                        comp[i].save()
+                    }
+
+                }
+                else {
+                    if (index === -1) {
+                        comp[i].studentsRegistered.push(stu._id);
+                        comp[i].save()
+                    }
+                    stu.companiesRegistered.push(comp[i]._id);
+                    stu.save();
                 }
             }
-
+            console.log(stu);
 
         })
-
     });
-
-
-    let array = req.body.companies;
-    let query1 = {'c_id': {$in:array}};
-
-    Company.find(query1, function (err, r)
-    {
-        if (err) {
-            throw err;
-        }
-
-        var query = {rollno:req.params.rollno};
-        var update = {
-            name : req.body.name,
-            department : req.body.department,
-            cgpa: req.body.cgpa
-        };
-
-        Student.findOneAndUpdate(query,update,{},function (err, record)
-        {
-            if (err) {
-                throw err;
-            }
-            record.companiesRegistered = [];
-
-            for ( i in r)
-            {
-                console.log(r[i]._id)
-                record.companiesRegistered.push(r[i]._id);
-                if( r[i].studentsRegistered.indexOf(record._id) === -1) {
-                    r[i].studentsRegistered.push(record._id);
-                    r[i].save();
-                }
-            }
-            record.save()
-            console.log(record)
-        });
-
-    } );
-    res.sendStatus(200)
+    res.sendStatus(200);
 
 });
 
@@ -199,35 +182,48 @@ route.get('/:rollno/companies', (req, res) => {
 //Register/Unregister Company
 route.put('/:rollno/edit/companies', (req, res) => {
 
-    let array = req.body.companies;
-    let query1 = {'c_id': {$in:array}};
-
-    Company.find(query1, function (err, r)
-    {
-        if (err) {
-            throw err;
-        }
-
-        var query = {rollno:req.params.rollno};
-        Student.findOneAndUpdate(query,{},{},function (err, record)
+         Student.findOneAndUpdate({ rollno:req.params.rollno },{},{},function (err, stu)
         {
-            if (err) {
+
+        if (err){ throw  err;}
+        Company.find({},function (err,comp)
+        {
+            if(err){
                 throw err;
             }
-            record.companiesRegistered = [];
-
-            for ( i in r)
+            let array = req.body.companies;
+            stu.companiesRegistered = [];
+            stu.save();
+            for (i in comp)
             {
-                console.log(r[i]._id)
-                record.companiesRegistered.push(r[i]._id);
+                let index = comp[i].studentsRegistered.indexOf(stu._id);
+
+                if(array.indexOf(comp[i].c_id.toString())===-1)
+                 {
+                     if (index === -1) {
+
+                     }
+                     else
+                         {
+                         comp[i].studentsRegistered.splice(index, 1);
+                         comp[i].save()
+                     }
+
+                 }
+                 else {
+                    if (index === -1) {
+                        comp[i].studentsRegistered.push(stu._id);
+                        comp[i].save()
+                    }
+                    stu.companiesRegistered.push(comp[i]._id);
+                    stu.save();
+                 }
             }
-            record.save()
-            console.log(record)
-        });
+            console.log(stu);
 
-    } );
-    res.sendStatus(200)
-
+        })
+    });
+    res.sendStatus(200);
 });
 
 
