@@ -126,7 +126,6 @@ route.put('/edit/:rollno', (req, res) => {
 //Delete A Student Record
 route.delete('/delete/:rollno', (req, res) => {
 
-    let studentToDelete = {};
     Student.findOne({rollno: req.params.rollno}, function (err, records) {
         if (err) {
             throw err;

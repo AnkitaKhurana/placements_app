@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 
-//Schema
+// Schema
 const companySchema = mongoose.Schema({
 
     c_id: {
