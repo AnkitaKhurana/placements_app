@@ -22,13 +22,26 @@ route.get('/all', (req, res) => {
 //  Sends Json object of matched record incase found
 route.get('/:c_id', (req, res) => {
 
-   Company.findOne({c_id:req.params.c_id}, function (err, record)
+
+    if(validator.isNumeric(''+req.params.c_id))
     {
-        if (err) {
-            throw err;
-        }
-        res.json(record);
-    } );
+        Company.findOne({c_id: req.params.c_id}, function (err, record) {
+            if (err) {
+                throw err;
+            }
+            res.json(record);
+        });
+    }
+    else
+    {
+        winston.log('Warning', {
+            error: 'Invalid Company ID'
+        });
+        return res.status(400).json({
+            "error": "Invalid Company ID",
+            "message": "Invalid Company ID"
+        });
+    }
 
 });
 
@@ -141,34 +154,65 @@ route.put('/edit/:c_id',(req,res)=>{
     var query = {c_id:req.params.c_id};
     var update ={};
 
-    if(validator.isAlphanumeric(''+req.body.name)&&req.body.name!=null)
-    {
+
+    if(!validator.isAscii(''+req.body.name) &&
+        req.body.name!=null) {
+        winston.log('Warning', {
+            error: 'Invalid Name'
+        });
+        return res.status(400).json({
+            "error": "Invalid Name",
+            "message": "Invalid Name"
+        });
+    }
+    else if(req.body.name!=null) {
         update.name = req.body.name;
     }
-    if(validator.isAlphanumeric(''+req.body.role)&&req.body.role!=null)
-    {
+
+
+    if(!validator.isAscii(''+req.body.role) &&
+        req.body.role!=null) {
+        winston.log('Warning', {
+            error: 'Invalid Role'
+        });
+        return res.status(400).json({
+            "error": "Invalid Role",
+            "message": "Invalid Role"
+        });
+    }
+    else if(req.body.role!=null) {
         update.role = req.body.role;
     }
-    if(validator.isNumeric(''+req.body.package))
-    {
+
+
+    if(!validator.isNumeric(''+req.body.package) &&
+        req.body.package!=null) {
+        winston.log('Warning', {
+            error: 'Invalid Package'
+        });
+        return res.status(400).json({
+            "error": "Invalid Package",
+            "message": "Invalid Package"
+        });
+    }
+    else if(req.body.package!=null){
         update.package = req.body.package;
     }
-    if(req.body.studentsRequired!=null)
-    {
-        update.studentsRegistered = req.body.studentsRequired;
+
+
+    if(!validator.isNumeric(''+req.body.studentsRequired) &&
+        req.body.studentsRequired!=null) {
+        winston.log('Warning', {
+            error: 'Invalid Number Of Students Required'
+        });
+        return res.status(400).json({
+            "error": "Invalid Number Of Students Required",
+            "message": "Invalid Number Of Students Required"
+        });
     }
-
-    // console.log(validator.isAlphanumeric(''+req.body.name)); //=> true
-    // console.log(validator.isNumeric(''+req.body.studentsRequired));
-    // console.log(validator.isNumeric(''+req.body.package));
-    // console.log(validator.isAlphanumeric(''+req.body.role));
-
-    // var update = {
-    //     name : req.body.name,
-    //     studentsRequired : req.body.studentsRequired,
-    //     package: req.body.package,
-    //     role: req.body.role,
-    // };
+    else if (req.body.studentsRequired!=null){
+        update.studentsRequired = req.body.studentsRequired;
+    }
 
     Company.findOneAndUpdate(query,update,{},function (err, record)
     {
