@@ -238,13 +238,12 @@ route.put('/edit/:c_id',(req,res)=>{
 
 
 
-//Delete Company Record
+//Delete Company Record (Unregister Company)
 route.delete('/delete/:c_id',(req,res)=>{
 
     if(validator.isNumeric(''+req.params.c_id)) {
 
         Company.findOne({c_id: req.params.c_id}, function (err, records) {
-            console.log(records)
             if (err) {
                 throw err;
             }
@@ -279,7 +278,6 @@ route.delete('/delete/:c_id',(req,res)=>{
                     })
                 });
             }
-
         });
 
         res.sendStatus(200);
