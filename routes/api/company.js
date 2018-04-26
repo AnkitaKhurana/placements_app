@@ -2,6 +2,7 @@ const route = require('express').Router();
 const Company = require('../../models/company');
 const Student = require('../../models/student');
 const validator = require('validator');
+const winston = require('winston');
 
 
 // Get all company objects
@@ -31,13 +32,13 @@ route.get('/:c_id', (req, res) => {
 
 });
 
-// Add New Company
+// Register New Company
 route.post('/add',(req,res)=>{
 
-    let comp = req.body;
+    let comp = {};
 
-    if(!validator.isEmpty(''+request.body.name) ||
-        !validator.isAlpha(''+request.body.name)) {
+    if(validator.isEmpty(''+req.body.name) ||
+        !validator.isAscii(''+req.body.name) || (req.body.name == null)) {
         winston.log('Warning', {
             error: 'Invalid Name'
         });
@@ -46,19 +47,12 @@ route.post('/add',(req,res)=>{
             "message": "Invalid Name"
         });
     }
-
-    if(!validator.isAlpha(''+request.body.role)) {
-        winston.log('Warning', {
-            error: 'Invalid Role'
-        });
-        return res.status(400).json({
-            "error": "Invalid Role",
-            "message": "Invalid Role"
-        });
+    else {
+        comp.name = req.body.name;
     }
 
-    if(!validator.isEmpty(''+request.body.c_id) ||
-        !validator.isAlphanumeric(''+request.body.c_id)) {
+    if(validator.isEmpty(''+req.body.c_id) ||
+        !validator.isNumeric(''+req.body.c_id) || (req.body.c_id == null)) {
         winston.log('Warning', {
             error: 'Invalid c_id'
         });
@@ -67,33 +61,77 @@ route.post('/add',(req,res)=>{
             "message": "Invalid Company Id"
         });
     }
+    else {
+        comp.c_id = req.body.c_id;
+    }
 
 
-    // if(validator.isAlphanumeric(''+req.body.name)&&req.body.name!=null)
-    // {
-    //     comp.name = req.body.name;
-    // }
-    // if(validator.isAlphanumeric(''+req.body.role)&&req.body.role!=null)
-    // {
-    //     comp.role = req.body.role;
-    // }
-    if(validator.isNumeric(''+req.body.package))
-    {
+    if(!validator.isAscii(''+req.body.role) &&
+        req.body.role!=null) {
+        winston.log('Warning', {
+            error: 'Invalid Role'
+        });
+        return res.status(400).json({
+            "error": "Invalid Role",
+            "message": "Invalid Role"
+        });
+    }
+    else {
+        comp.role = req.body.role;
+    }
+
+
+    if(!validator.isNumeric(''+req.body.package)&&
+        req.body.package!=null) {
+        winston.log('Warning', {
+            error: 'Invalid Package'
+        });
+        return res.status(400).json({
+            "error": "Invalid Package",
+            "message": "Invalid Package"
+        });
+    }
+    else {
         comp.package = req.body.package;
     }
-    if(req.body.studentsRequired!=null)
-    {
-        comp.studentsRegistered = req.body.studentsRequired;
+
+
+    if(!validator.isNumeric(''+req.body.studentsRequired)&&
+        req.body.studentsRequired!=null) {
+        winston.log('Warning', {
+            error: 'Invalid Package'
+        });
+        return res.status(400).json({
+            "error": "Invalid Package",
+            "message": "Invalid Package"
+        });
+    }
+    else {
+        comp.studentsRequired = req.body.studentsRequired;
     }
 
 
-    Company.create(comp,function (err, record)
-    {
-        if (err) {
-            throw err;
-        }
-        res.json(record);
+    Company.findOne({c_id:req.body.c_id},function(err,r) {
+            if (r == null) {
+                Company.create(comp, function (err, record) {
+                    if (err) {
+                        throw err;
+                    }
+                    res.json(record);
+                });
+            }
+            else {
+                winston.log('Warning', {
+                    error: 'Company ID Already exists'
+                });
+                return res.status(400).json({
+                    "error": "Company ID Already exists",
+                    "message": "Company ID Already exists"
+                });
+            }
     });
+
+
 });
 
 

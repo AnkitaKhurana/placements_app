@@ -6,7 +6,8 @@ const companySchema = mongoose.Schema({
 
     c_id: {
         type: Number,
-        required: true
+        required: true,
+        unique: true
     },
     name: {
         type: String,
