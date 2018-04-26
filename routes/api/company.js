@@ -151,76 +151,88 @@ route.post('/add',(req,res)=>{
 // Edit Company Details
 route.put('/edit/:c_id',(req,res)=>{
 
-    var query = {c_id:req.params.c_id};
-    var update ={};
+
+    if(validator.isNumeric(''+req.params.c_id)) {
+        var query = {c_id: req.params.c_id};
+        var update = {};
 
 
-    if(!validator.isAscii(''+req.body.name) &&
-        req.body.name!=null) {
-        winston.log('Warning', {
-            error: 'Invalid Name'
-        });
-        return res.status(400).json({
-            "error": "Invalid Name",
-            "message": "Invalid Name"
-        });
-    }
-    else if(req.body.name!=null) {
-        update.name = req.body.name;
-    }
-
-
-    if(!validator.isAscii(''+req.body.role) &&
-        req.body.role!=null) {
-        winston.log('Warning', {
-            error: 'Invalid Role'
-        });
-        return res.status(400).json({
-            "error": "Invalid Role",
-            "message": "Invalid Role"
-        });
-    }
-    else if(req.body.role!=null) {
-        update.role = req.body.role;
-    }
-
-
-    if(!validator.isNumeric(''+req.body.package) &&
-        req.body.package!=null) {
-        winston.log('Warning', {
-            error: 'Invalid Package'
-        });
-        return res.status(400).json({
-            "error": "Invalid Package",
-            "message": "Invalid Package"
-        });
-    }
-    else if(req.body.package!=null){
-        update.package = req.body.package;
-    }
-
-
-    if(!validator.isNumeric(''+req.body.studentsRequired) &&
-        req.body.studentsRequired!=null) {
-        winston.log('Warning', {
-            error: 'Invalid Number Of Students Required'
-        });
-        return res.status(400).json({
-            "error": "Invalid Number Of Students Required",
-            "message": "Invalid Number Of Students Required"
-        });
-    }
-    else if (req.body.studentsRequired!=null){
-        update.studentsRequired = req.body.studentsRequired;
-    }
-
-    Company.findOneAndUpdate(query,update,{},function (err, record)
-    {
-        if (err) {
-            throw err;
+        if (!validator.isAscii('' + req.body.name) &&
+            req.body.name != null) {
+            winston.log('Warning', {
+                error: 'Invalid Name'
+            });
+            return res.status(400).json({
+                "error": "Invalid Name",
+                "message": "Invalid Name"
+            });
         }
-    });
-    res.sendStatus(200);
+        else if (req.body.name != null) {
+            update.name = req.body.name;
+        }
+
+
+        if (!validator.isAscii('' + req.body.role) &&
+            req.body.role != null) {
+            winston.log('Warning', {
+                error: 'Invalid Role'
+            });
+            return res.status(400).json({
+                "error": "Invalid Role",
+                "message": "Invalid Role"
+            });
+        }
+        else if (req.body.role != null) {
+            update.role = req.body.role;
+        }
+
+
+        if (!validator.isNumeric('' + req.body.package) &&
+            req.body.package != null) {
+            winston.log('Warning', {
+                error: 'Invalid Package'
+            });
+            return res.status(400).json({
+                "error": "Invalid Package",
+                "message": "Invalid Package"
+            });
+        }
+        else if (req.body.package != null) {
+            update.package = req.body.package;
+        }
+
+
+        if (!validator.isNumeric('' + req.body.studentsRequired) &&
+            req.body.studentsRequired != null) {
+            winston.log('Warning', {
+                error: 'Invalid Number Of Students Required'
+            });
+            return res.status(400).json({
+                "error": "Invalid Number Of Students Required",
+                "message": "Invalid Number Of Students Required"
+            });
+        }
+        else if (req.body.studentsRequired != null) {
+            update.studentsRequired = req.body.studentsRequired;
+        }
+
+        Company.findOneAndUpdate(query, update, {}, function (err, record) {
+            if (err) {
+                throw err;
+            }
+        });
+        res.sendStatus(200);
+    }
+    else {
+
+        winston.log('Warning', {
+            error: 'Invalid Company ID'
+        });
+        return res.status(400).json({
+            "error": "Invalid Company ID",
+            "message": "Invalid Company ID"
+        });
+    }
 
 });
 
@@ -229,38 +241,60 @@ route.put('/edit/:c_id',(req,res)=>{
 //Delete Company Record
 route.delete('/delete/:c_id',(req,res)=>{
 
-    Company.findOne({c_id: req.params.c_id}, function (err, records) {
-        if (err) {
-            throw err;
-        }
+    if(validator.isNumeric(''+req.params.c_id)) {
 
-        Student.find({}, function (err, stu) {
+        Company.findOne({c_id: req.params.c_id}, function (err, records) {
+            console.log(records)
             if (err) {
                 throw err;
             }
-
-            for (i in stu) {
-
-                var index = stu[i].companiesRegistered.indexOf(records._id.toString());
-                if (index === -1) {
-
-                }
-                else {
-                    stu[i].companiesRegistered.splice(index, 1);
-                    stu[i].save();
-                }
+            else if (records == null)
+            {
+                winston.log('Warning', {
+                    error: 'No Record Found'
+                });
             }
-        }).then(records => {
-            Company.remove({c_id: req.params.c_id}, function (err, r) {
-                if (err) {
-                    throw err;
-                }
-            })
+            else {
+                Student.find({}, function (err, stu) {
+                    if (err) {
+                        throw err;
+                    }
+
+                    for (i in stu) {
+
+                        var index = stu[i].companiesRegistered.indexOf(records._id.toString());
+                        if (index === -1) {
+
+                        }
+                        else {
+                            stu[i].companiesRegistered.splice(index, 1);
+                            stu[i].save();
+                        }
+                    }
+                }).then(records => {
+                    Company.remove({c_id: req.params.c_id}, function (err, r) {
+                        if (err) {
+                            throw err;
+                        }
+                    })
+                });
+            }
+
         });
-    });
 
-    res.sendStatus(200)
+        res.sendStatus(200);
+    }
+    else
+    {
+        winston.log('Warning', {
+            error: 'Invalid Company ID'
+        });
+        return res.status(400).json({
+            "error": "Invalid Company ID",
+            "message": "Invalid Company ID"
+        });
 
+    }
 
 
 });
