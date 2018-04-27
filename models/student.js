@@ -8,12 +8,11 @@ const studentSchema = mongoose.Schema({
         required: true
     },
     department: {
-        type: String,
-        required: true
+        type: String
     },
     rollno: {
         type: Number,
-        required: true
+        required: true,
     },
     cgpa: {
         type: Number,
@@ -23,9 +22,9 @@ const studentSchema = mongoose.Schema({
         type: Date,
         default: Date.now()
     },
-    companiesRegistered: [ {type : mongoose.Schema.Types.ObjectId, ref : 'companies'} ]
+    companiesRegistered: [{type: mongoose.Schema.Types.ObjectId, ref: 'companies'}]
 
 });
 
 
-module.exports = mongoose.model('students',studentSchema);
+module.exports = mongoose.model('students', studentSchema);

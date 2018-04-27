@@ -6,20 +6,17 @@ const companySchema = mongoose.Schema({
 
     c_id: {
         type: Number,
-        required: true,
-        unique: true
+        required: true
     },
     name: {
         type: String,
         required: true
     },
     studentsRequired: {
-        type: Number,
-        // required: true
+        type: Number
     },
     package: {
-        type: Number,
-        // required: true
+        type: Number
     },
     role: {
         type: String,
@@ -28,9 +25,9 @@ const companySchema = mongoose.Schema({
         type: Date,
         default: Date.now()
     },
-    studentsRegistered: [ {type : mongoose.Schema.Types.ObjectId, ref : 'students'} ]
+    studentsRegistered: [{type: mongoose.Schema.Types.ObjectId, ref: 'students'}]
 
 });
 
 
-module.exports = mongoose.model('companies',companySchema);
+module.exports = mongoose.model('companies', companySchema);

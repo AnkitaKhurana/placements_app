@@ -8,8 +8,7 @@ const winston = require('winston');
 // Get all company objects
 route.get('/all', (req, res) => {
 
-    Company.find({},function(err , records)
-    {
+    Company.find({}, function (err, records) {
         if (err) {
             throw err;
         }
@@ -23,8 +22,7 @@ route.get('/all', (req, res) => {
 route.get('/:c_id', (req, res) => {
 
 
-    if(validator.isNumeric(''+req.params.c_id))
-    {
+    if (validator.isNumeric('' + req.params.c_id)) {
         Company.findOne({c_id: req.params.c_id}, function (err, record) {
             if (err) {
                 throw err;
@@ -32,8 +30,7 @@ route.get('/:c_id', (req, res) => {
             res.json(record);
         });
     }
-    else
-    {
+    else {
         winston.log('Warning', {
             error: 'Invalid Company ID'
         });
@@ -46,12 +43,12 @@ route.get('/:c_id', (req, res) => {
 });
 
 // Register New Company
-route.post('/add',(req,res)=>{
+route.post('/add', (req, res) => {
 
     let comp = {};
 
-    if(validator.isEmpty(''+req.body.name) ||
-        !validator.isAscii(''+req.body.name) || (req.body.name == null)) {
+    if (validator.isEmpty('' + req.body.name) ||
+        !validator.isAscii('' + req.body.name) || (req.body.name == null)) {
         winston.log('Warning', {
             error: 'Invalid Name'
         });
@@ -64,8 +61,8 @@ route.post('/add',(req,res)=>{
         comp.name = req.body.name;
     }
 
-    if(validator.isEmpty(''+req.body.c_id) ||
-        !validator.isNumeric(''+req.body.c_id) || (req.body.c_id == null)) {
+    if (validator.isEmpty('' + req.body.c_id) ||
+        !validator.isNumeric('' + req.body.c_id) || (req.body.c_id == null)) {
         winston.log('Warning', {
             error: 'Invalid c_id'
         });
@@ -79,8 +76,8 @@ route.post('/add',(req,res)=>{
     }
 
 
-    if(!validator.isAscii(''+req.body.role) &&
-        req.body.role!=null) {
+    if (!validator.isAscii('' + req.body.role) &&
+        req.body.role != null) {
         winston.log('Warning', {
             error: 'Invalid Role'
         });
@@ -94,8 +91,8 @@ route.post('/add',(req,res)=>{
     }
 
 
-    if(!validator.isNumeric(''+req.body.package)&&
-        req.body.package!=null) {
+    if (!validator.isNumeric('' + req.body.package) &&
+        req.body.package != null) {
         winston.log('Warning', {
             error: 'Invalid Package'
         });
@@ -109,8 +106,8 @@ route.post('/add',(req,res)=>{
     }
 
 
-    if(!validator.isNumeric(''+req.body.studentsRequired)&&
-        req.body.studentsRequired!=null) {
+    if (!validator.isNumeric('' + req.body.studentsRequired) &&
+        req.body.studentsRequired != null) {
         winston.log('Warning', {
             error: 'Invalid Package'
         });
@@ -124,24 +121,24 @@ route.post('/add',(req,res)=>{
     }
 
 
-    Company.findOne({c_id:req.body.c_id},function(err,r) {
-            if (r == null) {
-                Company.create(comp, function (err, record) {
-                    if (err) {
-                        throw err;
-                    }
-                    res.json(record);
-                });
-            }
-            else {
-                winston.log('Warning', {
-                    error: 'Company ID Already exists'
-                });
-                return res.status(400).json({
-                    "error": "Company ID Already exists",
-                    "message": "Company ID Already exists"
-                });
-            }
+    Company.findOne({c_id: req.body.c_id}, function (err, r) {
+        if (r == null) {
+            Company.create(comp, function (err, record) {
+                if (err) {
+                    throw err;
+                }
+                res.json(record);
+            });
+        }
+        else {
+            winston.log('Warning', {
+                error: 'Company ID Already exists'
+            });
+            return res.status(400).json({
+                "error": "Company ID Already exists",
+                "message": "Company ID Already exists"
+            });
+        }
     });
 
 
@@ -149,10 +146,10 @@ route.post('/add',(req,res)=>{
 
 
 // Edit Company Details
-route.put('/edit/:c_id',(req,res)=>{
+route.put('/edit/:c_id', (req, res) => {
 
 
-    if(validator.isNumeric(''+req.params.c_id)) {
+    if (validator.isNumeric('' + req.params.c_id)) {
         var query = {c_id: req.params.c_id};
         var update = {};
 
@@ -237,18 +234,16 @@ route.put('/edit/:c_id',(req,res)=>{
 });
 
 
-
 //Delete Company Record (Unregister Company)
-route.delete('/delete/:c_id',(req,res)=>{
+route.delete('/delete/:c_id', (req, res) => {
 
-    if(validator.isNumeric(''+req.params.c_id)) {
+    if (validator.isNumeric('' + req.params.c_id)) {
 
         Company.findOne({c_id: req.params.c_id}, function (err, records) {
             if (err) {
                 throw err;
             }
-            else if (records == null)
-            {
+            else if (records == null) {
                 winston.log('Warning', {
                     error: 'No Record Found'
                 });
@@ -282,8 +277,7 @@ route.delete('/delete/:c_id',(req,res)=>{
 
         res.sendStatus(200);
     }
-    else
-    {
+    else {
         winston.log('Warning', {
             error: 'Invalid Company ID'
         });
