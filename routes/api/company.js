@@ -10,7 +10,13 @@ route.get('/all', (req, res) => {
 
     Company.find({}, function (err, records) {
         if (err) {
-            throw err;
+            winston.log('Error', {
+                error: 'Error :'+ err
+            });
+            return res.status(400).json({
+                "error": err,
+                "message": "Some Error Occurred"
+            });
         }
         res.json(records);
     })
@@ -25,7 +31,13 @@ route.get('/:c_id', (req, res) => {
     if (validator.isNumeric('' + req.params.c_id)) {
         Company.findOne({c_id: req.params.c_id}, function (err, record) {
             if (err) {
-                throw err;
+                winston.log('Error', {
+                    error: 'Error :'+ err
+                });
+                return res.status(400).json({
+                    "error": err,
+                    "message": "Some Error Occurred"
+                });
             }
             res.json(record);
         });
@@ -125,7 +137,13 @@ route.post('/add', (req, res) => {
         if (r == null) {
             Company.create(comp, function (err, record) {
                 if (err) {
-                    throw err;
+                    winston.log('Error', {
+                        error: 'Error :'+ err
+                    });
+                    return res.status(400).json({
+                        "error": err,
+                        "message": "Some Error Occurred"
+                    });
                 }
                 res.json(record);
             });
@@ -215,7 +233,13 @@ route.put('/edit/:c_id', (req, res) => {
 
         Company.findOneAndUpdate(query, update, {}, function (err, record) {
             if (err) {
-                throw err;
+                winston.log('Error', {
+                    error: 'Error :'+ err
+                });
+                return res.status(400).json({
+                    "error": err,
+                    "message": "Some Error Occurred"
+                });
             }
         });
         res.sendStatus(200);
@@ -241,7 +265,13 @@ route.delete('/delete/:c_id', (req, res) => {
 
         Company.findOne({c_id: req.params.c_id}, function (err, records) {
             if (err) {
-                throw err;
+                winston.log('Error', {
+                    error: 'Error :'+ err
+                });
+                return res.status(400).json({
+                    "error": err,
+                    "message": "Some Error Occurred"
+                });
             }
             else if (records == null) {
                 winston.log('Warning', {
@@ -251,7 +281,13 @@ route.delete('/delete/:c_id', (req, res) => {
             else {
                 Student.find({}, function (err, stu) {
                     if (err) {
-                        throw err;
+                        winston.log('Error', {
+                            error: 'Error :'+ err
+                        });
+                        return res.status(400).json({
+                            "error": err,
+                            "message": "Some Error Occurred"
+                        });
                     }
 
                     for (i in stu) {
@@ -268,7 +304,13 @@ route.delete('/delete/:c_id', (req, res) => {
                 }).then(records => {
                     Company.remove({c_id: req.params.c_id}, function (err, r) {
                         if (err) {
-                            throw err;
+                            winston.log('Error', {
+                                error: 'Error :'+ err
+                            });
+                            return res.status(400).json({
+                                "error": err,
+                                "message": "Some Error Occurred"
+                            });
                         }
                     })
                 });

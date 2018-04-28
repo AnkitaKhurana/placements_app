@@ -9,7 +9,13 @@ route.get('/all', (req, res) => {
 
     Student.find({}, function (err, records) {
         if (err) {
-            throw err;
+            winston.log('Error', {
+                error: 'Error :'+ err
+            });
+            return res.status(400).json({
+                "error": err,
+                "message": "Some Error Occurred"
+            });
         }
         res.json(records);
     })
@@ -24,7 +30,13 @@ route.get('/:rollno', (req, res) => {
     if (validator.isNumeric('' + req.params.rollno)) {
         Student.findOne({rollno: req.params.rollno}).populate('companies').exec(function (err, record) {
             if (err) {
-                throw err
+                winston.log('Error', {
+                    error: 'Error :'+ err
+                });
+                return res.status(400).json({
+                    "error": err,
+                    "message": "Some Error Occurred"
+                });
             }
             res.json(record);
         });
@@ -121,7 +133,13 @@ route.post('/add', (req, res) => {
 
     Company.find(query, function (err, r) {
         if (err) {
-            throw err;
+            winston.log('Error', {
+                error: 'Error :'+ err
+            });
+            return res.status(400).json({
+                "error": err,
+                "message": "Some Error Occurred"
+            });
         }
 
         Student.findOne({rollno: req.body.rollno}, function (err, newstu) {
@@ -134,7 +152,13 @@ route.post('/add', (req, res) => {
                     department: student.department
                 }, function (err, record) {
                     if (err) {
-                        throw err;
+                        winston.log('Error', {
+                            error: 'Error :'+ err
+                        });
+                        return res.status(400).json({
+                            "error": err,
+                            "message": "Some Error Occurred"
+                        });
                     }
 
                 });
@@ -221,11 +245,23 @@ route.put('/edit/:rollno', (req, res) => {
     Student.findOneAndUpdate(query, update, {}, function (err, stu) {
 
         if (err) {
-            throw  err;
+            winston.log('Error', {
+                error: 'Error :'+ err
+            });
+            return res.status(400).json({
+                "error": err,
+                "message": "Some Error Occurred"
+            });
         }
         Company.find({}, function (err, comp) {
             if (err) {
-                throw err;
+                winston.log('Error', {
+                    error: 'Error :'+ err
+                });
+                return res.status(400).json({
+                    "error": err,
+                    "message": "Some Error Occurred"
+                });
             }
             let array = req.body.companies;
             stu.companiesRegistered = [];
@@ -272,12 +308,24 @@ route.delete('/delete/:rollno', (req, res) => {
 
         Student.findOne({rollno: req.params.rollno}, function (err, records) {
             if (err) {
-                throw err;
+                winston.log('Error', {
+                    error: 'Error :'+ err
+                });
+                return res.status(400).json({
+                    "error": err,
+                    "message": "Some Error Occurred"
+                });
             }
 
             Company.find({}, function (err, comp) {
                 if (err) {
-                    throw err;
+                    winston.log('Error', {
+                        error: 'Error :'+ err
+                    });
+                    return res.status(400).json({
+                        "error": err,
+                        "message": "Some Error Occurred"
+                    });
                 }
                 if (comp !== null && typeof records !== 'undefined' && records !== null)
                     for (i in comp) {
@@ -294,7 +342,13 @@ route.delete('/delete/:rollno', (req, res) => {
             }).then(records => {
                 Student.remove({rollno: req.params.rollno}, function (err, record) {
                     if (err) {
-                        throw err;
+                        winston.log('Error', {
+                            error: 'Error :'+ err
+                        });
+                        return res.status(400).json({
+                            "error": err,
+                            "message": "Some Error Occurred"
+                        });
                     }
                 })
             });
@@ -318,13 +372,25 @@ route.delete('/deleteAll', (req, res) => {
 
     Student.remove({}, function (err, record) {
         if (err) {
-            throw err;
+            winston.log('Error', {
+                error: 'Error :'+ err
+            });
+            return res.status(400).json({
+                "error": err,
+                "message": "Some Error Occurred"
+            });
         }
 
     });
     Company.find({}, function (err, records) {
         if (err) {
-            throw err;
+            winston.log('Error', {
+                error: 'Error :'+ err
+            });
+            return res.status(400).json({
+                "error": err,
+                "message": "Some Error Occurred"
+            });
         }
         for (i in records) {
             records[i].studentsRegistered = [];
@@ -351,7 +417,13 @@ route.get('/:rollno/companies', (req, res) => {
 
             Company.find(query, function (err, records) {
                 if (err) {
-                    throw err;
+                    winston.log('Error', {
+                        error: 'Error :'+ err
+                    });
+                    return res.status(400).json({
+                        "error": err,
+                        "message": "Some Error Occurred"
+                    });
                 }
                 res.json(records);
             });
@@ -379,11 +451,23 @@ route.put('/:rollno/edit/companies', (req, res) => {
         Student.findOneAndUpdate({rollno: req.params.rollno}, {}, {}, function (err, stu) {
 
             if (err) {
-                throw  err;
+                winston.log('Error', {
+                    error: 'Error :'+ err
+                });
+                return res.status(400).json({
+                    "error": err,
+                    "message": "Some Error Occurred"
+                });
             }
             Company.find({}, function (err, comp) {
                 if (err) {
-                    throw err;
+                    winston.log('Error', {
+                        error: 'Error :'+ err
+                    });
+                    return res.status(400).json({
+                        "error": err,
+                        "message": "Some Error Occurred"
+                    });
                 }
                 let array = req.body.companies;
                 stu.companiesRegistered = [];
